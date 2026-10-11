@@ -67,11 +67,11 @@ void SimulationManager::startSimulation() {
 
             // Display game rules cleanly
 
-#ifdef _WIN32
+        #ifdef _WIN32
             std::system("cls");
-#else
+        #else
             std::cout << "\x1B[2J\x1B[H";
-#endif
+        #endif
             std::cout << "=== CONWAY'S GAME OF LIFE RULES ===\n\n";
             std::cout << "1. Underpopulation: Alive cell with < 2 alive neighbors dies.\n";
             std::cout << "2. Survival: Alive cell with 2 or 3 alive neighbors lives.\n";
