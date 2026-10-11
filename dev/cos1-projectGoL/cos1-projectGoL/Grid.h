@@ -4,7 +4,8 @@
 #include <vector>
 #include "Cell.h"
 
-class Grid {
+class Grid {                  // <<<<<<<<<<<<<<<<<<< I always put my braces here instead of 
+                              // <<<<<<<<<<<<<<<<<<< here. I find it easier to read for myself.
 private:
     int rows;
     int cols;
