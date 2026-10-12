@@ -14,7 +14,21 @@ I leveled up my understanding of mapping logical 2D matrices into unified vector
 Before the next milestone, I will prioritize coding the neighbor evaluation logic inside the `Grid` class and validating the basic rulesets (birth, survival, and under/overpopulation death).
 
 
+ Overview
 
+This week, I shifted my focus from project setup into active implementation for my ASCII Conway's Game of Life. I successfully designed and completed a detailed Milestone 2 project planning worksheet, recorded a prototype overview video, and built out the core state machine for the application's user interface.
+
+:cactus: Challenges
+
+My primary obstacle this week was preventing user interface breaks and system memory faults. If a user entered non-numeric input into the menu loops, it would cause infinite execution loops. Additionally, checking cell neighbors along the absolute borders of my 2D matrix threatened out-of-bounds index errors that would crash the entire application.
+
+:trophy: Accomplishments
+
+I leveled up significantly in both input validation safety and algorithm design! I successfully updated my SimulationManager with input-clearing routines that handle malicious keystrokes cleanly. I also implemented a cross-platform console clearing routine to animate frames in place, and successfully coded a toroidal edge-wrapping system in Grid.cpp using the mathematical modulo operator (%).
+
+:crystal_ball: Next Steps
+
+Before Week 3, I will prioritize moving the engine from a static grid state into a functional double-buffering pipeline. This will ensure that cellular survival and birth rules calculate simultaneously across a secondary hidden matrix before updating the active display grid.
 
 
 
