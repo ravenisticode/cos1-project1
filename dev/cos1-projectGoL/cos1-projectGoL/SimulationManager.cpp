@@ -2,7 +2,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include <cstdlib> // Needed for std::system
+#include <cstdlib> // Needed for std::system stuffs
 
 SimulationManager::SimulationManager(int rows, int cols)
     : simulationGrid(rows, cols), currentGeneration(0), isRunning(false) {

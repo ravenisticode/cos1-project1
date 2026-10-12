@@ -6,6 +6,7 @@ Grid::Grid(int r, int c) : rows(r), cols(c) {
 }
 
 void Grid::initializeRandom() {
+
     // Basic hardcoded live cells for initial milestone verification
     if (rows > 2 && cols > 2) {
         matrix[1][1].setAlive(true);
@@ -38,7 +39,7 @@ int Grid::countAliveNeighbors(int r, int c) const {
             int neighborRow = (r + i + rows) % rows;
             int neighborCol = (c + j + cols) % cols;
 
-            if (matrix[neighborRow][neighborCol].getAlive()) {
+            if (matrix[neighborRow][neighborCol].getAlive()) {  // One great big fat huge matrix "if" going here<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                 aliveCount++;
             }
         }
