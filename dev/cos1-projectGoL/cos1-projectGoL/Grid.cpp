@@ -1,51 +1,43 @@
 #include "Grid.h"
 #include <iostream>
 #include <cstdlib>
-#include <ctime>
 
-// Constructor: Dynamically allocate memory for both pointer arrays on the heap
+// Constructor: Allocates a 2D matrix of actual Cell objects
 Grid::Grid(int w, int h) : width(w), height(h) {
-    currentGrid = new bool* [height];
-    nextGrid = new bool* [height];
+    cellMatrix = new Cell * [height];
     for (int i = 0; i < height; ++i) {
-        currentGrid[i] = new bool[width] {false};
-        nextGrid[i] = new bool[width] {false};
+        cellMatrix[i] = new Cell[width];
     }
 }
 
-// Destructor: Safely clean up raw pointers to prevent memory leaks
+// Destructor: Clean up the dynamically allocated Cell array matrix
 Grid::~Grid() {
     for (int i = 0; i < height; ++i) {
-        delete[] currentGrid[i];
-        delete[] nextGrid[i];
+        delete[] cellMatrix[i];
     }
-    delete[] currentGrid;
-    delete[] nextGrid;
+    delete[] cellMatrix;
 }
 
-// TRUE RANDOM INITIALIZATION: Replaces the hardcoded pattern
 void Grid::initializeRandom(float density) {
     for (int row = 0; row < height; ++row) {
         for (int col = 0; col < width; ++col) {
             float roll = static_cast<float>(std::rand()) / RAND_MAX;
-            currentGrid[row][col] = (roll < density);
-            nextGrid[row][col] = false; // Keep the buffer clean
+            cellMatrix[row][col].setIsAlive(roll < density);
         }
     }
 }
 
-// NEIGHBOR COUNTING: Uses modulo wrapping so cells smoothly cross screen borders
 int Grid::countAliveNeighbors(int row, int col) const {
     int count = 0;
     for (int i = -1; i <= 1; ++i) {
         for (int j = -1; j <= 1; ++j) {
-            if (i == 0 && j == 0) continue; // Skip the target cell itself
+            if (i == 0 && j == 0) continue;
 
-            // Modulo formula ensures edges wrap around seamlessly
+            // Seamless boundary edge wrapping (modulo method)
             int targetRow = (row + i + height) % height;
             int targetCol = (col + j + width) % width;
 
-            if (currentGrid[targetRow][targetCol]) {
+            if (cellMatrix[targetRow][targetCol].getIsAlive()) {
                 count++;
             }
         }
@@ -53,33 +45,31 @@ int Grid::countAliveNeighbors(int row, int col) const {
     return count;
 }
 
-// SIMULATION ENGINE: Evaluates rules and executes the pointer swap
 void Grid::updateGeneration() {
+    // Phase 1: Analyze current states and calculate the next state for every cell
     for (int row = 0; row < height; ++row) {
         for (int col = 0; col < width; ++col) {
             int neighbors = countAliveNeighbors(row, col);
-            bool isAlive = currentGrid[row][col];
+            bool currentlyAlive = cellMatrix[row][col].getIsAlive();
 
-            if (isAlive) {
-                // Survival rules
-                nextGrid[row][col] = (neighbors == 2 || neighbors == 3);
+            if (currentlyAlive) {
+                cellMatrix[row][col].setNextState(neighbors == 2 || neighbors == 3);
             }
             else {
-                // Reproduction rule
-                nextGrid[row][col] = (neighbors == 3);
+                cellMatrix[row][col].setNextState(neighbors == 3);
             }
         }
     }
 
-    // MEANINGFUL POINTER SWAP: Swaps memory addresses instantly
-    bool** temp = currentGrid;
-    currentGrid = nextGrid;
-    nextGrid = temp;
+    // Phase 2: Evolve all cells to their new states simultaneously 
+    for (int row = 0; row < height; ++row) {
+        for (int col = 0; col < width; ++col) {
+            cellMatrix[row][col].evolve();
+        }
+    }
 }
 
-// RENDER LOOP: Prints ASCII representation to the console
 void Grid::display() const {
-    // Clear screen terminal command (Platform-dependent alternate: std::cout << "\x1B[2J\x1B[H";)
 #ifdef _WIN32
     std::system("cls");
 #else
@@ -88,7 +78,7 @@ void Grid::display() const {
 
     for (int row = 0; row < height; ++row) {
         for (int col = 0; col < width; ++col) {
-            std::cout << (currentGrid[row][col] ? "# " : ". ");
+            std::cout << (cellMatrix[row][col].getIsAlive() ? "# " : ". ");
         }
         std::cout << "\n";
     }

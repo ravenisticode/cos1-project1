@@ -1,16 +1,17 @@
 #ifndef GRID_H
 #define GRID_H
 
+#include "Cell.h"
+
 class Grid {
 private:
     int width;
     int height;
-    bool** currentGrid; // Pointer to the active generation array
-    bool** nextGrid;    // Pointer to the buffer array for calculation
+    Cell** cellMatrix; // A 2D array of Cell objects on the heap
 
 public:
     Grid(int w, int h);
-    ~Grid(); // Destructor to clean up heap allocations
+    ~Grid(); // Destructor cleans up the Cell objects safely
 
     void initializeRandom(float density);
     int countAliveNeighbors(int row, int col) const;
