@@ -1,21 +1,21 @@
 #ifndef GRID_H
 #define GRID_H
 
-#include <vector>
-#include "Cell.h"
-
-class Grid {                  // <<<<<<<<<<<<<<<<<<< FYI:> I always put my braces here instead of 
-                              // <<<<<<<<<<<<<<<<<<< here. I find it easier to read for myself.
+class Grid {
 private:
-    int rows;
-    int cols;
-    std::vector<std::vector<Cell>> matrix;
+    int width;
+    int height;
+    bool** currentGrid; // Pointer to the active generation array
+    bool** nextGrid;    // Pointer to the buffer array for calculation
 
 public:
-    Grid(int r, int c);
-    void initializeRandom();
-    void printGrid() const;
-    int countAliveNeighbors(int r, int c) const;
+    Grid(int w, int h);
+    ~Grid(); // Destructor to clean up heap allocations
+
+    void initializeRandom(float density);
+    int countAliveNeighbors(int row, int col) const;
+    void updateGeneration();
+    void display() const;
 };
 
 #endif

@@ -1,48 +1,96 @@
 #include "Grid.h"
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
-Grid::Grid(int r, int c) : rows(r), cols(c) {
-    matrix.resize(rows, std::vector<Cell>(cols));
-}
-
-void Grid::initializeRandom() {
-
-    // Basic hardcoded live cells for initial milestone verification
-    if (rows > 2 && cols > 2) {
-        matrix[1][1].setAlive(true);
-        matrix[1][2].setAlive(true);
-        matrix[1][3].setAlive(true); // Blinker pattern
+// Constructor: Dynamically allocate memory for both pointer arrays on the heap
+Grid::Grid(int w, int h) : width(w), height(h) {
+    currentGrid = new bool* [height];
+    nextGrid = new bool* [height];
+    for (int i = 0; i < height; ++i) {
+        currentGrid[i] = new bool[width] {false};
+        nextGrid[i] = new bool[width] {false};
     }
 }
 
-void Grid::printGrid() const {
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            std::cout << matrix[i][j].getASCII() << " ";
+// Destructor: Safely clean up raw pointers to prevent memory leaks
+Grid::~Grid() {
+    for (int i = 0; i < height; ++i) {
+        delete[] currentGrid[i];
+        delete[] nextGrid[i];
+    }
+    delete[] currentGrid;
+    delete[] nextGrid;
+}
+
+// TRUE RANDOM INITIALIZATION: Replaces the hardcoded pattern
+void Grid::initializeRandom(float density) {
+    for (int row = 0; row < height; ++row) {
+        for (int col = 0; col < width; ++col) {
+            float roll = static_cast<float>(std::rand()) / RAND_MAX;
+            currentGrid[row][col] = (roll < density);
+            nextGrid[row][col] = false; // Keep the buffer clean
         }
-        std::cout << "\n";
     }
 }
 
-int Grid::countAliveNeighbors(int r, int c) const {
-    int aliveCount = 0;
-
-    // Check all 8 surrounding cells (-1 to +1 directional offsets)<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// NEIGHBOR COUNTING: Uses modulo wrapping so cells smoothly cross screen borders
+int Grid::countAliveNeighbors(int row, int col) const {
+    int count = 0;
     for (int i = -1; i <= 1; ++i) {
         for (int j = -1; j <= 1; ++j) {
-            // Skip checking the center cell itself<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-            if (i == 0 && j == 0) continue;
+            if (i == 0 && j == 0) continue; // Skip the target cell itself
 
-            // Toroidal Edge Wrapping (The Modulo Trick)<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-            // This safely connects the left edge to the right edge, and top to bottom!<<<<<<<<<
+            // Modulo formula ensures edges wrap around seamlessly
+            int targetRow = (row + i + height) % height;
+            int targetCol = (col + j + width) % width;
 
-            int neighborRow = (r + i + rows) % rows;
-            int neighborCol = (c + j + cols) % cols;
-
-            if (matrix[neighborRow][neighborCol].getAlive()) {  // One great big fat huge matrix "if" going here<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                aliveCount++;
+            if (currentGrid[targetRow][targetCol]) {
+                count++;
             }
         }
     }
-    return aliveCount;
+    return count;
+}
+
+// SIMULATION ENGINE: Evaluates rules and executes the pointer swap
+void Grid::updateGeneration() {
+    for (int row = 0; row < height; ++row) {
+        for (int col = 0; col < width; ++col) {
+            int neighbors = countAliveNeighbors(row, col);
+            bool isAlive = currentGrid[row][col];
+
+            if (isAlive) {
+                // Survival rules
+                nextGrid[row][col] = (neighbors == 2 || neighbors == 3);
+            }
+            else {
+                // Reproduction rule
+                nextGrid[row][col] = (neighbors == 3);
+            }
+        }
+    }
+
+    // MEANINGFUL POINTER SWAP: Swaps memory addresses instantly
+    bool** temp = currentGrid;
+    currentGrid = nextGrid;
+    nextGrid = temp;
+}
+
+// RENDER LOOP: Prints ASCII representation to the console
+void Grid::display() const {
+    // Clear screen terminal command (Platform-dependent alternate: std::cout << "\x1B[2J\x1B[H";)
+#ifdef _WIN32
+    std::system("cls");
+#else
+    std::system("clear");
+#endif
+
+    for (int row = 0; row < height; ++row) {
+        for (int col = 0; col < width; ++col) {
+            std::cout << (currentGrid[row][col] ? "# " : ". ");
+        }
+        std::cout << "\n";
+    }
+    std::cout << std::endl;
 }
