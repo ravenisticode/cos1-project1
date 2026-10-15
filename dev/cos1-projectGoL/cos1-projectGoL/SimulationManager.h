@@ -5,14 +5,15 @@
 
 class SimulationManager {
 private:
-    Grid simulationGrid;
+    Grid* gameBoard; // Pointer to our grid object
+    int maxGenerations;
     int currentGeneration;
-    bool isRunning;
 
 public:
-    SimulationManager(int rows, int cols);
-    void startSimulation();
-    void updateGeneration();
+    SimulationManager();
+    ~SimulationManager();
+
+    void run(); // Main engine control loop
 };
 
 #endif

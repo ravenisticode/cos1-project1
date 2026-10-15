@@ -1,90 +1,64 @@
 #include "SimulationManager.h"
 #include <iostream>
-#include <thread>
-#include <chrono>
-#include <cstdlib> // Needed for std::system stuffs
+#include <string>
 
-SimulationManager::SimulationManager(int rows, int cols)
-    : simulationGrid(rows, cols), currentGeneration(0), isRunning(false) {
-}
-
-void SimulationManager::startSimulation() {
+// Helper validation function inside our manager's source file
+int getValidatedInput(const std::string& prompt) {
+    std::string userInput;
     int choice = 0;
+    bool isValid = false;
 
-    while (choice != 3) {
-        // Clear console for a clean UI aesthetic
-#ifdef _WIN32
-        std::system("cls");
-#else
-        std::cout << "\x1B[2J\x1B[H";
-#endif
+    while (!isValid) {
+        std::cout << prompt;
+        std::getline(std::cin, userInput);
 
-        std::cout << "===== CONWAY'S GAME OF LIFE (ASCII) =====\n";
-        std::cout << "1. Run Simulation Grid\n";
-        std::cout << "2. View Project Information & Rules\n";
-        std::cout << "3. Exit Application\n";
-        std::cout << "=========================================\n";
-        std::cout << "Enter selection (1-3): ";
-
-        // Input Validation
-        if (!(std::cin >> choice) || choice < 1 || choice > 3) {
-            std::cin.clear();
-            std::cin.ignore(1000, '\n');
-            std::cout << "\n[!] Invalid input. Press Enter to try again...";
-            std::cin.get();
-            continue;
+        try {
+            choice = std::stoi(userInput);
+            if (choice <= 0) throw std::out_of_range("Must be positive");
+            isValid = true;
         }
-
-        if (choice == 1) {
-            // Run the actual simulation loop
-            isRunning = true;
-            currentGeneration = 0;
-            simulationGrid.initializeRandom();
-
-            while (isRunning && currentGeneration < 5) {
-        #ifdef _WIN32
-                std::system("cls");
-        #else
-                std::cout << "\x1B[2J\x1B[H";
-        #endif
-
-                std::cout << "--- Conway's Game of Life: ASCII Edition ---\n";
-                std::cout << "Generation: " << currentGeneration << "\n\n";
-                simulationGrid.printGrid();
-
-                updateGeneration();
-                currentGeneration++;
-
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            }
-
-            std::cout << "\nSimulation paused or completed. Press Enter to return to menu...";
-            std::cin.ignore(1000, '\n');
-            std::cin.get();
-
+        catch (const std::invalid_argument&) {
+            std::cout << "Error: Invalid text string. Numbers only.\n";
         }
-        else if (choice == 2) {
-
-            // Display game rules cleanly
-
-        #ifdef _WIN32
-            std::system("cls");
-        #else
-            std::cout << "\x1B[2J\x1B[H";
-        #endif
-            std::cout << "=== CONWAY'S GAME OF LIFE RULES ===\n\n";
-            std::cout << "1. Underpopulation: Alive cell with < 2 alive neighbors dies.\n";
-            std::cout << "2. Survival: Alive cell with 2 or 3 alive neighbors lives.\n";
-            std::cout << "3. Overpopulation: Alive cell with > 3 alive neighbors dies.\n";
-            std::cout << "4. Reproduction: Dead cell with exactly 3 alive neighbors becomes alive.\n\n";
-            std::cout << "Press Enter to return to the main menu...";
-            std::cin.ignore(1000, '\n');
-            std::cin.get();
+        catch (const std::out_of_range&) {
+            std::cout << "Error: Out of range bounds. Try a smaller positive number.\n";
         }
     }
-    std::cout << "\nThank you for using the simulation. Goodbye!\n";
+    return choice;
 }
 
-void SimulationManager::updateGeneration() {
-    // Stub function where my 4 core Conway rules will execute next milestone
+SimulationManager::SimulationManager() {
+    gameBoard = nullptr;
+    maxGenerations = 0;
+    currentGeneration = 0;
+}
+
+SimulationManager::~SimulationManager() {
+    // Safely delete the dynamically allocated grid object to prevent leaks
+    if (gameBoard != nullptr) {
+        delete gameBoard;
+    }
+}
+
+void SimulationManager::run() {
+    std::cout << "=== Conway's Game of Life: ASCII Edition ===\n\n";
+
+    int width = getValidatedInput("Enter grid width: ");
+    int height = getValidatedInput("Enter grid height: ");
+    maxGenerations = getValidatedInput("Enter number of generations to run: ");
+
+    // Instantiating our Grid using a pointer on the heap
+    gameBoard = new Grid(width, height);
+    gameBoard->initializeRandom(0.3f);
+    gameBoard->display();
+
+    for (currentGeneration = 1; currentGeneration <= maxGenerations; ++currentGeneration) {
+        std::cout << "Generation " << currentGeneration << " of " << maxGenerations << ". Press Enter to evolve...";
+        std::cin.get(); // Wait for user press
+
+        gameBoard->updateGeneration();
+        gameBoard->display();
+    }
+
+    std::cout << "Simulation completed safely. Goodbye!\n";
 }

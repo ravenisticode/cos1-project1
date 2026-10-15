@@ -1,15 +1,22 @@
 #include "Cell.h"
 
-Cell::Cell() : isAlive(false) {}
-
-void Cell::setAlive(bool alive) {
-    isAlive = alive;
+Cell::Cell() {
+    isAlive = false;
+    nextAliveState = false;
 }
 
-bool Cell::getAlive() const {
+bool Cell::getIsAlive() const {
     return isAlive;
 }
 
-char Cell::getASCII() const {
-    return isAlive ? 'X' : '.';
+void Cell::setIsAlive(bool state) {
+    isAlive = state;
+}
+
+void Cell::setNextState(bool state) {
+    nextAliveState = state;
+}
+
+void Cell::evolve() {
+    isAlive = nextAliveState;
 }

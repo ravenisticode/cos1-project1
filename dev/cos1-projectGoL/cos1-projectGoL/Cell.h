@@ -2,17 +2,18 @@
 #define CELL_H
 
 class Cell {
-
 private:
     bool isAlive;
+    bool nextAliveState;
 
 public:
-
     Cell();
-    void setAlive(bool alive);
-    bool getAlive() const;
-    char getASCII() const; // Returns 'X' for alive, '.' for dead [insert*blurry 90's jpeg of bakery poster with the word "bread" crossed out]
 
+    bool getIsAlive() const;
+    void setIsAlive(bool state);
+
+    void setNextState(bool state);
+    void evolve(); // Copies nextAliveState into isAlive
 };
 
 #endif
