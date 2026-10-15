@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 
-// Helper validation function inside our manager's source file
+// Crash-proof lecture validation function
 int getValidatedInput(const std::string& prompt) {
     std::string userInput;
     int choice = 0;
@@ -14,14 +14,13 @@ int getValidatedInput(const std::string& prompt) {
 
         try {
             choice = std::stoi(userInput);
-            if (choice <= 0) throw std::out_of_range("Must be positive");
             isValid = true;
         }
         catch (const std::invalid_argument&) {
             std::cout << "Error: Invalid text string. Numbers only.\n";
         }
         catch (const std::out_of_range&) {
-            std::cout << "Error: Out of range bounds. Try a smaller positive number.\n";
+            std::cout << "Error: Out of range bounds. Try a smaller number.\n";
         }
     }
     return choice;
@@ -34,31 +33,67 @@ SimulationManager::SimulationManager() {
 }
 
 SimulationManager::~SimulationManager() {
-    // Safely delete the dynamically allocated grid object to prevent leaks
     if (gameBoard != nullptr) {
         delete gameBoard;
     }
 }
 
 void SimulationManager::run() {
-    std::cout << "=== Conway's Game of Life: ASCII Edition ===\n\n";
+    bool keepRunning = true;
 
-    int width = getValidatedInput("Enter grid width: ");
-    int height = getValidatedInput("Enter grid height: ");
-    maxGenerations = getValidatedInput("Enter number of generations to run: ");
+    while (keepRunning) {
+        std::cout << "=== Conway's Game of Life: ASCII Edition ===\n";
+        std::cout << "1. Run the Simulator\n";
+        std::cout << "2. Explanation of Cellular Automata Rules\n";
+        std::cout << "3. Exit Program\n";
 
-    // Instantiating our Grid using a pointer on the heap
-    gameBoard = new Grid(width, height);
-    gameBoard->initializeRandom(0.3f);
-    gameBoard->display();
+        int menuChoice = getValidatedInput("Please enter your choice (1-3): ");
 
-    for (currentGeneration = 1; currentGeneration <= maxGenerations; ++currentGeneration) {
-        std::cout << "Generation " << currentGeneration << " of " << maxGenerations << ". Press Enter to evolve...";
-        std::cin.get(); // Wait for user press
+        if (menuChoice == 1) {
+            // Choice 1: Setup and Run the Simulator
+            int width = getValidatedInput("Enter grid width: ");
+            int height = getValidatedInput("Enter grid height: ");
+            maxGenerations = getValidatedInput("Enter number of generations to run: ");
 
-        gameBoard->updateGeneration();
-        gameBoard->display();
+            // Clean up old board if it exists from a previous run
+            if (gameBoard != nullptr) {
+                delete gameBoard;
+            }
+
+            gameBoard = new Grid(width, height);
+            gameBoard->initializeRandom(0.3f);
+            gameBoard->display();
+
+            for (currentGeneration = 1; currentGeneration <= maxGenerations; ++currentGeneration) {
+                std::cout << "Generation " << currentGeneration << " of " << maxGenerations << ". Press Enter to evolve...";
+
+                // Keep our buffer clear fix down in the backlog issue
+                std::cin.get();
+
+                gameBoard->updateGeneration();
+                gameBoard->display();
+            }
+
+            std::cout << "Simulation loop completed.\n\n";
+
+        }
+        else if (menuChoice == 2) {
+            // Choice 2: Explain the Rules
+            std::cout << "\n================= THE RULES OF LIFE =================";
+            std::cout << "\n1. Underpopulation: Any live cell with fewer than 2 live neighbors dies.";
+            std::cout << "\n2. Survival: Any live cell with 2 or 3 live neighbors lives to the next frame.";
+            std::cout << "\n3. Overpopulation: Any live cell with more than 3 live neighbors dies.";
+            std::cout << "\n4. Reproduction: Any dead cell with exactly 3 live neighbors becomes alive.";
+            std::cout << "\n=====================================================\n\n";
+
+        }
+        else if (menuChoice == 3) {
+            // Choice 3: Exit
+            std::cout << "Exiting system. Goodbye!\n";
+            keepRunning = false;
+        }
+        else {
+            std::cout << "Invalid selection. Please choose options 1, 2, or 3.\n\n";
+        }
     }
-
-    std::cout << "Simulation completed safely. Goodbye!\n";
 }
