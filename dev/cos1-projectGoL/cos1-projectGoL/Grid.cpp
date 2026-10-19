@@ -1,48 +1,86 @@
 #include "Grid.h"
 #include <iostream>
+#include <cstdlib>
 
-Grid::Grid(int r, int c) : rows(r), cols(c) {
-    matrix.resize(rows, std::vector<Cell>(cols));
-}
-
-void Grid::initializeRandom() {
-
-    // Basic hardcoded live cells for initial milestone verification
-    if (rows > 2 && cols > 2) {
-        matrix[1][1].setAlive(true);
-        matrix[1][2].setAlive(true);
-        matrix[1][3].setAlive(true); // Blinker pattern
+// Constructor: Allocates a 2D matrix of actual Cell objects
+Grid::Grid(int w, int h) : width(w), height(h) {
+    cellMatrix = new Cell * [height];
+    for (int i = 0; i < height; ++i) {
+        cellMatrix[i] = new Cell[width];
     }
 }
 
-void Grid::printGrid() const {
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            std::cout << matrix[i][j].getASCII() << " ";
+// Destructor: Clean up the dynamically allocated Cell array matrix
+Grid::~Grid() {
+    for (int i = 0; i < height; ++i) {
+        delete[] cellMatrix[i];
+    }
+    delete[] cellMatrix;
+}
+
+void Grid::initializeRandom(float density) {
+    for (int row = 0; row < height; ++row) {
+        for (int col = 0; col < width; ++col) {
+            float roll = static_cast<float>(std::rand()) / RAND_MAX;
+            cellMatrix[row][col].setIsAlive(roll < density);
         }
-        std::cout << "\n";
     }
 }
 
-int Grid::countAliveNeighbors(int r, int c) const {
-    int aliveCount = 0;
-
-    // Check all 8 surrounding cells (-1 to +1 directional offsets)<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+int Grid::countAliveNeighbors(int row, int col) const {
+    int count = 0;
     for (int i = -1; i <= 1; ++i) {
         for (int j = -1; j <= 1; ++j) {
-            // Skip checking the center cell itself<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
             if (i == 0 && j == 0) continue;
 
-            // Toroidal Edge Wrapping (The Modulo Trick)<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-            // This safely connects the left edge to the right edge, and top to bottom!<<<<<<<<<
+            // Seamless boundary edge wrapping (modulo method)
+            int targetRow = (row + i + height) % height;
+            int targetCol = (col + j + width) % width;
 
-            int neighborRow = (r + i + rows) % rows;
-            int neighborCol = (c + j + cols) % cols;
-
-            if (matrix[neighborRow][neighborCol].getAlive()) {  // One great big fat huge matrix "if" going here<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                aliveCount++;
+            if (cellMatrix[targetRow][targetCol].getIsAlive()) {
+                count++;
             }
         }
     }
-    return aliveCount;
+    return count;
+}
+
+void Grid::updateGeneration() {
+    // Phase 1: Analyze current states and calculate the next state for every cell
+    for (int row = 0; row < height; ++row) {
+        for (int col = 0; col < width; ++col) {
+            int neighbors = countAliveNeighbors(row, col);
+            bool currentlyAlive = cellMatrix[row][col].getIsAlive();
+
+            if (currentlyAlive) {
+                cellMatrix[row][col].setNextState(neighbors == 2 || neighbors == 3);
+            }
+            else {
+                cellMatrix[row][col].setNextState(neighbors == 3);
+            }
+        }
+    }
+
+    // Phase 2: Evolve all cells to their new states simultaneously 
+    for (int row = 0; row < height; ++row) {
+        for (int col = 0; col < width; ++col) {
+            cellMatrix[row][col].evolve();
+        }
+    }
+}
+
+void Grid::display() const {
+#ifdef _WIN32
+    std::system("cls");
+#else
+    std::system("clear");
+#endif
+
+    for (int row = 0; row < height; ++row) {
+        for (int col = 0; col < width; ++col) {
+            std::cout << (cellMatrix[row][col].getIsAlive() ? "# " : ". ");
+        }
+        std::cout << "\n";
+    }
+    std::cout << std::endl;
 }

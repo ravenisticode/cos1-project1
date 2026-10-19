@@ -1,11 +1,14 @@
+#include <cstdlib>
+#include <ctime>
 #include "SimulationManager.h"
 
 int main() {
+    // Seed the pseudo-random generator exactly once on startup
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-    // Instantiate the manager with a 10x10 simulation board area like this yo:
-
-    SimulationManager gameManager(10, 10);
-    gameManager.startSimulation();
+    // Instantiate and boot the manager engine
+    SimulationManager manager;
+    manager.run();
 
     return 0;
 }
