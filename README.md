@@ -52,7 +52,7 @@ My next stand up will go here...
 
 ### Week 3
 
-Stay tuned, this stand up is coming soon...
+Progress Update • Completed: Established the object-oriented layout, built the ASCII rendering loop, and completed the logic to count adjacent neighbors. • In Progress: Implementing Conway's rules inside updateGeneration(). Setting up a double-buffered pointer-swapping array system (bool**) to include pointer utilization. • To Do: Implement the lecture-recommended, crash-proof string extraction method for menu inputs. • Challenges: My original implementation relied on raw std::cin >> formatting, which caused infinite loops when receiving invalid text inputs. Refactoring Plan • Target Area: Input Validation and Random Initialization. • Why: The old validation routines do not handle exceptions gracefully, risking runtime crashes. The random setup also relies on a hardcoded test pattern instead of dynamic generation. • Action Plan: I will rewrite the terminal parsing pipeline to use std::getline paired with std::stoi nested inside a try/catch block to filter out invalid characters and handle exceptions cleanly. Level Up Goal • Focus: Advanced Pointer Manipulation & Memory Operations. • Steps: Reviewing Day 3 Lecture examples on raw pointer allocation and deploying a three-step pointer variable swap to execute buffer updates efficiently without deep-copying memory. Optional Project Feedback • I am using an array of pointers (bool**) to handle my double-buffering. Is it cleaner from a class design perspective to encapsulate the buffer pointer swap directly within the Grid class update function, or should that assignment loop be handled by the main application controller?"
 
 ### Week 4
 

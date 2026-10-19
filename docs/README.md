@@ -34,6 +34,22 @@ Before Week 3, I will prioritize moving the engine from a static grid state into
 
 
 
+## 📊 End-of-Week Project Stand-Up (Milestone 3)
+
+### 🔎 Overview
+This week I focused on transforming my project from a static interface layout into a fully evolving simulation engine. I mapped out the core cellular generation rules and focused heavily on updating my runtime validation.
+
+### 🧹 Improvements
+I implemented the four fundamental rules of life and death within my simulation. I refactored the entire grid layer to transition from primitive data states to fully encapsulated `Cell` class object matrices on the heap using advanced double pointers. I also upgraded my menu to use a robust `try/catch` exception loop for text extraction.
+
+### 🧟 Challenges
+Dealing with the keyboard buffer caused a minor issue where text inputs would occasionally cause generations to skip automatically. I isolated this technical debt down to my backlog, planning a `std::getline` drain step to fully cleanse stdin during the Week 4 polish phase.
+
+### 🏆 Accomplishments
+My instructor's feedback highly emphasized incorporating meaningful pointer use and random setups. I resolved this completely by implementing my matrix allocations using raw double pointers (`Cell**`) and replacing my static layout with a pseudo-random density calculator.
+
+### 🔮 Next Steps
+My primary goal for Week 4 is execution polishing. I will concentrate on smooth interface timing, clearing out the lingering keyboard input buffer glitch, and refining my class definitions for final project packaging.
 
 
 
