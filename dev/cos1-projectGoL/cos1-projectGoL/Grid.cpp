@@ -2,16 +2,39 @@
 #include <iostream>
 #include <cstdlib>
 
-// Private helper to allocate cell matrices safely
+// Private helper to allocate cell matrices safely with boundary safeguards
+
 void Grid::allocateMemory(int targetWidth, int targetHeight) {
-    width = targetWidth;
-    height = targetHeight;
+
+    // 1. Verify that size variables are strictly positive and non-zero
+
+    if (targetWidth <= 0 || targetHeight <= 0) {
+        std::cout << "Warning: Invalid dimensions detected (" << targetWidth << "x" << targetHeight
+            << "). Resetting to safe default minimum 3x3.\n";
+        width = 3;
+        height = 3;
+    }
+    // 2. Insulate from extreme constraints that could cause memory exhaustion or overflows
+
+    else if (targetWidth > 150 || targetHeight > 150) {
+        std::cout << "Warning: Extreme dimensions detected (" << targetWidth << "x" << targetHeight
+            << "). Capping to stable maximum 150x150 to safeguard heap memory.\n";
+        width = 150;
+        height = 150;
+    }
+    else {
+        width = targetWidth;
+        height = targetHeight;
+    }
+
+    // 3. Perform the dynamic allocation safely now that bounds are certified positive and non-zero
 
     cellMatrix = new Cell * [height];
     for (int i = 0; i < height; ++i) {
         cellMatrix[i] = new Cell[width];
     }
 }
+
 
 // Private helper to release matrix layers cleanly without memory leaks
 void Grid::freeMemory() {
