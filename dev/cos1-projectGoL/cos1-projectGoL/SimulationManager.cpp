@@ -67,8 +67,9 @@ void SimulationManager::run() {
             for (currentGeneration = 1; currentGeneration <= maxGenerations; ++currentGeneration) {
                 std::cout << "Generation " << currentGeneration << " of " << maxGenerations << ". Press Enter to evolve...";
 
-                // Keep our buffer clear fix down in the backlog issue
-                std::cin.get();
+                // FIX: Use getline to swallow stray characters and flush the stream buffer cleanly
+                std::string stepBuffer;
+                std::getline(std::cin, stepBuffer);
 
                 gameBoard->updateGeneration();
                 gameBoard->display();
