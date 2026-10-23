@@ -2,20 +2,74 @@
 #include <iostream>
 #include <cstdlib>
 
-// Constructor: Allocates a 2D matrix of actual Cell objects
-Grid::Grid(int w, int h) : width(w), height(h) {
+// Private helper to allocate cell matrices safely
+void Grid::allocateMemory(int targetWidth, int targetHeight) {
+    width = targetWidth;
+    height = targetHeight;
+
     cellMatrix = new Cell * [height];
     for (int i = 0; i < height; ++i) {
         cellMatrix[i] = new Cell[width];
     }
 }
 
-// Destructor: Clean up the dynamically allocated Cell array matrix
-Grid::~Grid() {
-    for (int i = 0; i < height; ++i) {
-        delete[] cellMatrix[i];
+// Private helper to release matrix layers cleanly without memory leaks
+void Grid::freeMemory() {
+    if (cellMatrix != nullptr) {
+        for (int i = 0; i < height; ++i) {
+            delete[] cellMatrix[i];
+        }
+        delete[] cellMatrix;
+        cellMatrix = nullptr;
     }
-    delete[] cellMatrix;
+}
+
+// Constructor
+Grid::Grid(int initialWidth, int initialHeight) {
+    allocateMemory(initialWidth, initialHeight);
+}
+
+// Destructor
+Grid::~Grid() {
+    freeMemory();
+}
+
+// 1. RULE OF THREE: Deep Copy Constructor
+Grid::Grid(const Grid& otherGrid) {
+    // Allocate a completely fresh memory partition matching dimensions
+    allocateMemory(otherGrid.width, otherGrid.height);
+
+    // Individually mirror values over cell-by-cell
+    for (int row = 0; row < height; ++row) {
+        for (int col = 0; col < width; ++col) {
+            cellMatrix[row][col].setIsAlive(otherGrid.cellMatrix[row][col].getIsAlive());
+            cellMatrix[row][col].setNextState(otherGrid.cellMatrix[row][col].getNextState());
+        }
+    }
+}
+
+// 2. RULE OF THREE: Deep Copy Assignment Operator (operator=)
+Grid& Grid::operator=(const Grid& otherGrid) {
+    // Safeguard against self-assignment anomalies
+    if (this == &otherGrid) {
+        return *this;
+    }
+
+    // Scrub old elements from memory completely
+    freeMemory();
+
+    // Map new structures
+    allocateMemory(otherGrid.width, otherGrid.height);
+
+    // Populate data deeply
+    for (int row = 0; row < height; ++row) {
+        for (int col = 0; col < width; ++col) {
+            cellMatrix[row][col].setIsAlive(otherGrid.cellMatrix[row][col].getIsAlive());
+            cellMatrix[row][col].setNextState(otherGrid.cellMatrix[row][col].getNextState());
+        }
+    }
+
+    return *this;
 }
 
 void Grid::initializeRandom(float density) {
