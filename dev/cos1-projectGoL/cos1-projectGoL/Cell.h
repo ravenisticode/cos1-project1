@@ -10,10 +10,11 @@ public:
     Cell();
 
     bool getIsAlive() const;
+    bool getNextState() const; // <-- Added this getter
     void setIsAlive(bool state);
 
     void setNextState(bool state);
-    void evolve(); // Copies nextAliveState into isAlive
+    void evolve();
 };
 
 #endif

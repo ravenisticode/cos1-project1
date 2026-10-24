@@ -20,3 +20,6 @@ void Cell::setNextState(bool state) {
 void Cell::evolve() {
     isAlive = nextAliveState;
 }
+bool Cell::getNextState() const {
+    return nextAliveState;
+}
