@@ -56,4 +56,20 @@ Progress Update • Completed: Established the object-oriented layout, built the
 
 ### Week 4
 
-My final stand up...
+# Conway's Game of Life: ASCII Edition
+
+## 🔎 Overview
+This week, I brought the C++ engine architecture from a standard working state to an optimized, crash-proof console application. I successfully stabilized memory allocation routines, hardened the application user layer, and wrapped up our final code sprint objectives.
+
+## 🧹 Project Wrap-Up
+Before submitting the final application, I focused completely on defensive systems engineering and software robustness. I engineered validation sweeps to intercept mixed data string vulnerabilities (like "5abc"), added bounded limits to block zero or negative inputs from touching heap memory, and fixed a lingering input buffer bug that was causing iterations to skip generations.
+
+## 🧟 Challenges
+My biggest technical obstacle was preventing potential memory leakage and double-free vulnerabilities within our dynamic multidimensional matrix when objects were processed or re-initialized. I resolved this by auditing our `Grid` architecture, separating structural pointers into private helpers, and writing an explicit Deep Copy Constructor and Copy Assignment Operator under the C++ Rule of Three.
+
+## 🏆 Biggest Takeaway
+The most valuable lesson I learned this month is the massive difference between simply typing code until it compiles and cleanly tracking an application using structured version control. Transitioning to an industry workflow using decoupled Git branches, distinct Issues, and a Project board allowed me to isolate complex memory interactions systematically instead of chasing cascading bugs.
+
+## 🔮 Future Development
+If I continue expanding this application, my next priority would be adding external file-system integration to let the interpreter parse and read custom initial matrix configurations directly from local `.cells` or `.txt` files. I would also love to implement multi-threaded iteration tracks to optimize cell generation calculation speeds on larger display fields.
+
